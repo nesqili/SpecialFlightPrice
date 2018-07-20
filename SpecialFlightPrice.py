@@ -6,14 +6,15 @@ import re
 import xml.etree.cElementTree as ET
 import sys
 import urllib.request
-#import importlib
-#default_encoding = 'utf-8'
-#importlib.reload(sys)
-#sys.setdefaultencoding(default_encoding)
+
 
 def getdate(startdate, enddate):
     url = 'https://sjipiao.alitrip.com/search/cheapFlight.htm?startDate=%s&endDate=%s&' \
-         'routes=BJS-&_ksTS=1469412627640_2361&callback=jsonp2362&ruleId=99&flag=1' % (startdate, enddate)
+         'routes=SZX-&_ksTS=1469412627640_2361&callback=jsonp2362&ruleId=99&flag=1' % (startdate, enddate)
+    ## 不同城市出发的URL不一样，SZX代表深圳，修改即可 更换不同的出发地 
+    ## 'KHN''南昌', 'LJG''丽江',  'JJN''泉州',  'SIA''西安',  'LYA''洛阳',  'HAK''海口',  'FOC''福州',  'CTU''成都',  'CGO''郑州',  'NKG''南京',  'HGH''杭州',
+# 'XNN''西宁', 'ZUH''珠海',  'SZX''深圳',  'TAO''青岛',  'CIH''长治',  'DLC''大连',  'TYN''太原',  'CZX''常州',  'SHE''沈阳',  'SJW''石家庄' 'WNZ''温州',
+# 'KOW''赣州',  'DYG''张家界' 'ENH''恩施',
     price_html = urllib.request.urlopen(url).read().strip()
 
     pattern = r'jsonp2362\(\s+(.+?)\)'
@@ -133,7 +134,7 @@ def task_query_flight():
     print( str(today) + ' To ' + endstr)  #打印时间范围
 
     province = set_target(target)
-    print("province=%s",province)
+    print("province=%s" % province )
     flights = getdate(today, enddate=endstr)
     flights = flights_sort(flights)
     print_all_trip(flights)

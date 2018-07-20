@@ -5,19 +5,20 @@ import urllib
 import re
 import xml.etree.cElementTree as ET
 import sys
-
-default_encoding = 'utf-8'
-reload(sys)
-sys.setdefaultencoding(default_encoding)
+import urllib.request
+#import importlib
+#default_encoding = 'utf-8'
+#importlib.reload(sys)
+#sys.setdefaultencoding(default_encoding)
 
 def getdate(startdate, enddate):
     url = 'https://sjipiao.alitrip.com/search/cheapFlight.htm?startDate=%s&endDate=%s&' \
          'routes=BJS-&_ksTS=1469412627640_2361&callback=jsonp2362&ruleId=99&flag=1' % (startdate, enddate)
-    price_html = urllib.urlopen(url).read().strip()
+    price_html = urllib.request.urlopen(url).read().strip()
 
     pattern = r'jsonp2362\(\s+(.+?)\)'
     re_rule = re.compile(pattern)
-
+    price_html = price_html.decode('utf-8')  # python3
     json_data = re.findall(pattern, price_html)[0]
     price_json = json.loads(json_data)
 
@@ -68,7 +69,8 @@ def flights_sort(flights):
     for f in flights:
         value = []
         province = get_Target(f['arrName'])
-        if not names.has_key(province):
+    #    if not names.has_key(province):
+        if not province in names:
             value.append(f)
             names[province] = value
         else:
@@ -91,8 +93,8 @@ def set_target(name):
 
 # 输出目的地及其附近的航班信息
 def printTargetInfo(sorted_flights, targetName):
-    print
-    print '*****************targetInfo*****************'
+    print()
+    print('*****************targetInfo*****************')
     if type(targetName) == str:
         for province in sorted_flights:
             if targetName == province:
@@ -113,24 +115,25 @@ def print_all_trip(flights):
 
 # 输出目的地航班信息
 def print_trip(flight, province):
-        print '===============Province:%s===============' % province
+        print('===============Province:%s==============='% province)
         for f in flight:
             source = '从：%s-' % f['depName']
             dest = '到：%s\t' % f['arrName']
             price = '\t价格：%s%s(折扣:%s)\t' % ((f['price']), f['priceDesc'], f['discount'])
             depart_date = '\t日期：%s' % f['depDate']
-            print source + dest + price + depart_date
+            print(source + dest + price + depart_date)
 
 
 def task_query_flight():
-    delay = int(raw_input('Enter the Day after: '))
-    target = ['武汉','杭州']
+    delay = int(input('Enter the Day after: '))
+    target = ['深圳','武汉']
     today = datetime.date.today()
     enddate = today + datetime.timedelta(delay)
     endstr = str(enddate)
-    print str(today) + ' To ' + endstr
+    print( str(today) + ' To ' + endstr)  #打印时间范围
 
     province = set_target(target)
+    print("province=%s",province)
     flights = getdate(today, enddate=endstr)
     flights = flights_sort(flights)
     print_all_trip(flights)
